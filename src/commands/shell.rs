@@ -1,12 +1,46 @@
 use crate::config::{ConfigPaths, Lockfile};
 use anyhow::{Context, Result};
 use std::fs;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Read};
 use std::process::{Command, Stdio};
 use sysinfo::{Pid, System};
 
+fn run_detached_quickshell() -> Result<u32> {
+    // We run: nohup qs -c shelly-shell >/dev/null 2>&1 & echo $!
+    // This starts the process, detaches it, and prints the new PID.
+    let cmd_str = "nohup qs -c shelly-shell >/dev/null 2>&1 & echo $!";
+    
+    let mut child = Command::new("/bin/sh")
+        .arg("-c")
+        .arg(cmd_str)
+        .stdout(Stdio::piped())
+        .spawn()
+        .context("Failed to run /bin/sh")?;
+
+    // We must wait for the command to finish
+    let status = child.wait()?;
+    if !status.success() {
+        anyhow::bail!("Failed to get PID from detached command");
+    }
+
+    // Read the PID from stdout
+    let mut stdout_str = String::new();
+    if let Some(mut stdout) = child.stdout.take() {
+        stdout.read_to_string(&mut stdout_str)?;
+    }
+
+    // Parse the PID string to a u32
+    let pid = stdout_str
+        .trim()
+        .parse::<u32>()
+        .context("Failed to parse PID from stdout")?;
+
+    Ok(pid)
+}
+
 // `pub` so `main.rs` can call it.
 pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> {
+    // Check for stale lockfile (this logic is still good)
     if paths.lock_file.exists() {
         let content = fs::read_to_string(&paths.lock_file)?;
         let lock: Lockfile = serde_json::from_str(&content)?;
@@ -20,30 +54,17 @@ pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> 
         }
     }
 
-    println!("Starting shelly shell...");
-    let mut command = Command::new("sleep");
-    command.arg("600"); // 10 minute placeholder daemon
-    
-    if !show_stdout {
-        command.stdout(Stdio::null());
-        command.stderr(Stdio::null());
-    } else {
-        command.stdout(Stdio::piped());
-    }
-
-    let mut child = command
-        .spawn()
-        .context("Failed to start shelly shell daemon")?;
-
-    let pid = child.id();
-    
-    let lock = Lockfile { pid };
-    let lock_content = serde_json::to_string_pretty(&lock)?;
-    fs::write(&paths.lock_file, lock_content)?;
-
-    println!("shelly shell successfully running! (PID: {})", pid);
-
     if show_stdout {
+        // --- Run in foreground ---
+        println!("Starting shelly shell in foreground...");
+        let mut child = Command::new("qs")
+            .args(["-c", "shelly-shell"])
+            .stdout(Stdio::piped())
+            .spawn()
+            .context("Failed to start quickshell. Is it installed?")?;
+
+        println!("shelly shell successfully running! (PID: {})", child.id());
+
         if let Some(stdout) = child.stdout.take() {
             let reader = BufReader::new(stdout);
             for line in reader.lines() {
@@ -52,7 +73,17 @@ pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> 
         }
         child.wait()?;
         println!("shelly shell exited.");
-        fs::remove_file(&paths.lock_file)?;
+    } else {
+        // --- Run in background (detached) ---
+        println!("Starting shelly shell in background...");
+        let pid = run_detached_quickshell()?;
+
+        // Save only the pid to the lockfile
+        let lock = Lockfile { pid };
+        let lock_content = serde_json::to_string_pretty(&lock)?;
+        fs::write(&paths.lock_file, lock_content)?;
+
+        println!("shelly shell successfully running! (PID: {})", pid);
     }
     
     Ok(())

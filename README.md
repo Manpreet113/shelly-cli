@@ -100,6 +100,7 @@ shelly integration
 ```
 
 This command will:
+
 - Clone the shelly-shell repository to your QuickShell config directory
 - Copy Hyprland configuration files (execs, keybinds, rules) to your Hyprland config directory
 - Set up the necessary integrations for the shell to work properly
