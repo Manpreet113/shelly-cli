@@ -8,6 +8,8 @@ A helper CLI tool for managing wallpapers, preferences, and shell daemon operati
 - **Preferences**: Get and set user preferences using a key-value store
 - **List Operations**: List available wallpapers and other resources
 - **Shell Daemon**: Start, stop, and check the status of the shelly daemon
+- **Integration**: Automatically clone and set up shelly-shell QML components and Hyprland configurations
+- **Notifications**: Send desktop notifications from the command line
 
 ## Installation
 
@@ -88,6 +90,29 @@ shelly shell stop
 shelly shell status
 ```
 
+#### Integration
+
+Set up the shelly-shell environment:
+
+```bash
+# Clone shelly-shell QML components and copy Hyprland configurations
+shelly integration
+```
+
+This command will:
+- Clone the shelly-shell repository to your QuickShell config directory
+- Copy Hyprland configuration files (execs, keybinds, rules) to your Hyprland config directory
+- Set up the necessary integrations for the shell to work properly
+
+#### Notify
+
+Send desktop notifications:
+
+```bash
+# Send a notification with title and body
+shelly notify "Title" "Body message"
+```
+
 ## Configuration
 
 Shelly uses platform-specific configuration directories:
@@ -119,7 +144,9 @@ shelly/
 │       ├── wallpaper.rs
 │       ├── prefs.rs
 │       ├── list.rs
-│       └── shell.rs
+│       ├── shell.rs
+│       └── integration.rs
+├── integrations/         # Hyprland integration files
 ├── Cargo.toml
 └── README.md
 ```

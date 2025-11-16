@@ -12,6 +12,8 @@ pub struct ConfigPaths {
     pub user_wall_dir: PathBuf,
     // pub runtime_dir: PathBuf,
     pub lock_file: PathBuf,
+    pub hypr_config_dir: PathBuf,
+    pub quickshell_config_dir: PathBuf,
 }
 
 /// This is the Rust struct for the /tmp/whisker.lck file.
@@ -26,6 +28,16 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
     let config_dir = dirs::config_dir()
         .context("Could not find config directory")?
         .join("shelly");
+
+    // Find ~/.config/hypr
+    let hypr_config_dir = dirs::config_dir()
+        .context("Could not find config directory")?
+        .join("hypr");
+
+    // Quickshell looks in ~/.config/quickshell/
+    let quickshell_config_dir = dirs::config_dir()
+        .context("Could not find config directory")?
+        .join("quickshell");
     
     let user_wall_dir = dirs::picture_dir()
         .context("Could not find picture directory")?
@@ -38,6 +50,10 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
     // Create dirs if they don't exist
     fs::create_dir_all(&config_dir)
         .context(format!("Failed to create config dir at {:?}", config_dir))?;
+    fs::create_dir_all(&hypr_config_dir) 
+        .context(format!("Failed to create hypr config dir at {:?}", hypr_config_dir))?;
+    fs::create_dir_all(&quickshell_config_dir) 
+        .context(format!("Failed to create quickshell config dir at {:?}", quickshell_config_dir))?;
     fs::create_dir_all(&user_wall_dir)
         .context(format!("Failed to create wallpaper dir at {:?}", user_wall_dir))?;
     fs::create_dir_all(&runtime_dir)
@@ -49,5 +65,7 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
         // config_dir,
         user_wall_dir,
         // runtime_dir,
+        hypr_config_dir,
+        quickshell_config_dir,
     })
 }

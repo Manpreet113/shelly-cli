@@ -37,7 +37,7 @@ pub enum Commands {
         #[command(subcommand)]
         action: ShellAction,
     },
-    
+
     /// Send a desktop notification (replaces NotifyCommand.hx)
     Notify {
         /// The notification title
@@ -45,6 +45,8 @@ pub enum Commands {
         /// The notification body
         body: String,
     },
+    /// Integrate shelly with Hyprland
+    Integration,
 }
 
 #[derive(Subcommand, Debug)]
