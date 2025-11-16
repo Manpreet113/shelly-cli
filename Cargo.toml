@@ -22,3 +22,6 @@ sysinfo = "0.30.12"
 
 # For notifications
 notify-rust = "4"
+
+# Can't keep making these comments! I'm done
+chrono = "0.4"

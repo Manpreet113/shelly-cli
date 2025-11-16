@@ -16,6 +16,7 @@ use commands::{
     notify::handle_notify,
     integration::handle_integration,
     ipc::handle_ipc,
+    screen::handle_screen,
 };
 
 fn main() -> Result<()> {
@@ -50,7 +51,10 @@ fn main() -> Result<()> {
         },
         Commands::Ipc { args } => {
             handle_ipc(&args)?;
-        }
+        },
+        Commands::Screen { region, copy } => {
+            handle_screen(&paths, region, copy)?;
+        },
     }
 
     Ok(())

@@ -56,6 +56,16 @@ pub enum Commands {
         #[arg(required = true, num_args = 1..)]
         args: Vec<String>,
     },
+
+    Screen {
+        /// Select a region instead of fullscreen
+        #[clap(long)]
+        region: bool,
+
+        /// Copy the image to the clipboard
+        #[clap(long)]
+        copy: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]
