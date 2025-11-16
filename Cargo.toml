@@ -1,0 +1,21 @@
+[package]
+name = "shelly"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# The king of CLI argument parsing
+clap = { version = "4.5.4", features = ["derive"] }
+
+# The king of serialization/deserialization (for JSON)
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.117"
+
+# The idiomatic way to find cross-platform config/data directories
+dirs = "5.0.1"
+
+# The standard for easy and beautiful error handling
+anyhow = "1.0.86"
+
+# A small helper for checking if a process exists
+sysinfo = "0.30.12"
