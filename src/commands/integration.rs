@@ -3,15 +3,9 @@ use anyhow::{bail, Context, Result};
 use std::fs;
 use std::process::{Command, Stdio};
 
-// Hardcode your repo URL. This is a personal tool,
-// it should know what it needs to fetch.
 const SHELLY_SHELL_REPO: &str = "https://github.com/manpreet113/shelly-shell.git";
 
-// `pub` so `main.rs` can call it.
 pub fn handle_integration(paths: &ConfigPaths) -> Result<()> {
-    
-    // --- Part 1: Clone the shelly-shell QML ---
-
     let target_qml_path = paths.quickshell_config_dir.join("shelly-shell");
     if target_qml_path.exists() {
         println!("shelly-shell already cloned to {:?}", target_qml_path);
@@ -32,8 +26,6 @@ pub fn handle_integration(paths: &ConfigPaths) -> Result<()> {
         }
         println!("Successfully cloned shelly-shell.");
     }
-
-    // --- Part 2: Copy the Hyprland configs ---
 
     println!(
         "Copying Hyprland configs to: {:?}",

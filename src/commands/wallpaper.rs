@@ -5,10 +5,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
-// We also need the prefs handler to update the config
 use super::prefs::handle_prefs_set;
 
-// `pub` so `main.rs` can call it.
 pub fn handle_wallpaper(paths: &ConfigPaths, path: &Path, no_scheme: bool) -> Result<()> {
     if !path.exists() {
         bail!("File does not exist: {}", path.to_string_lossy());

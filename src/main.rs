@@ -4,10 +4,9 @@ mod commands;
 
 use anyhow::Result;
 use clap::Parser;
-use cli::{Cli, Commands, PrefsAction, ListType, ShellAction};
+use cli::{Cli, Commands, PrefsAction, ListType, ShellAction, WelcomeAction};
 use config::get_config_paths;
 
-// We pull in the *public* handler functions from our new command modules.
 use commands::{
     list::handle_list_wallpapers,
     prefs::{handle_prefs_get, handle_prefs_set},
@@ -17,16 +16,13 @@ use commands::{
     integration::handle_integration,
     ipc::handle_ipc,
     screen::handle_screen,
+    welcome::{handle_welcome_start, handle_welcome_stop},
 };
 
 fn main() -> Result<()> {
-    // 1. Get paths (from config module)
     let paths = get_config_paths()?;
-    
-    // 2. Parse CLI (from cli module)
     let cli = Cli::parse();
 
-    // 3. Match and delegate (to commands modules)
     match cli.command {
         Commands::Wallpaper { path, no_scheme_gen } => {
             handle_wallpaper(&paths, &path, no_scheme_gen)?;
@@ -54,6 +50,10 @@ fn main() -> Result<()> {
         },
         Commands::Screen { region, copy } => {
             handle_screen(&paths, region, copy)?;
+        },
+        Commands::Welcome { action } => match action {
+            WelcomeAction::Start { stdout } => handle_welcome_start(&paths, stdout)?,
+            WelcomeAction::Stop => handle_welcome_stop(&paths)?,
         },
     }
 

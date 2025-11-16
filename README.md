@@ -10,13 +10,16 @@ A helper CLI tool for managing wallpapers, preferences, and shell daemon operati
 - **Shell Daemon**: Start, stop, and check the status of the shelly daemon
 - **Integration**: Automatically clone and set up shelly-shell QML components and Hyprland configurations
 - **Notifications**: Send desktop notifications from the command line
+- **Screen Capture**: Take screenshots with region selection and clipboard support
+- **Welcome Screen**: Launch and manage the shelly welcome screen
+- **IPC**: Send IPC messages to the running shelly-shell
 
 ## Installation
 
 ### From Source
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/manpreet113/shelly.git
 cd shelly
 cargo build --release
 ```
@@ -42,23 +45,21 @@ shelly <COMMAND>
 Change the wallpaper and optionally generate a new color scheme:
 
 ```bash
-# Set a wallpaper (generates color scheme by default)
 shelly wallpaper /path/to/image.jpg
 
-# Set a wallpaper without generating a color scheme
 shelly wallpaper /path/to/image.jpg --no-scheme-gen
 ```
+
+Supports both images and videos. For videos, a frame is extracted for color generation.
 
 #### Preferences
 
 Get or set user preferences:
 
 ```bash
-# Get a preference value
 shelly prefs get <KEY>
 shelly prefs get theme.dark
 
-# Set a preference value
 shelly prefs set <KEY> <VALUE>
 shelly prefs set theme.dark true
 ```
@@ -68,7 +69,6 @@ shelly prefs set theme.dark true
 List available resources:
 
 ```bash
-# List available wallpapers
 shelly list wallpapers
 ```
 
@@ -77,16 +77,12 @@ shelly list wallpapers
 Manage the shelly daemon:
 
 ```bash
-# Start the daemon
 shelly shell start
 
-# Start the daemon with stdout output
 shelly shell start --stdout
 
-# Stop the daemon
 shelly shell stop
 
-# Check daemon status
 shelly shell status
 ```
 
@@ -95,7 +91,6 @@ shelly shell status
 Set up the shelly-shell environment:
 
 ```bash
-# Clone shelly-shell QML components and copy Hyprland configurations
 shelly integration
 ```
 
@@ -110,8 +105,39 @@ This command will:
 Send desktop notifications:
 
 ```bash
-# Send a notification with title and body
 shelly notify "Title" "Body message"
+```
+
+#### Screen Capture
+
+Take screenshots:
+
+```bash
+shelly screen
+
+shelly screen --region
+
+shelly screen --region --copy
+```
+
+#### Welcome Screen
+
+Manage the welcome screen:
+
+```bash
+shelly welcome start
+
+shelly welcome start --stdout
+
+shelly welcome stop
+```
+
+#### IPC
+
+Send IPC messages to shelly-shell:
+
+```bash
+shelly ipc <ARGS>
 ```
 
 ## Configuration
@@ -129,6 +155,17 @@ Shelly uses platform-specific configuration directories:
 - [dirs](https://github.com/dirs-dev/dirs-rs) - Cross-platform config directory detection
 - [anyhow](https://github.com/dtolnay/anyhow) - Error handling
 - [sysinfo](https://github.com/GuillaumeGomez/sysinfo) - Process management
+- [notify-rust](https://github.com/hoodie/notify-rust) - Desktop notifications
+- [chrono](https://github.com/chronotope/chrono) - Date and time
+
+## External Dependencies
+
+- **matugen** - For color scheme generation
+- **ffmpeg** - For video frame extraction
+- **quickshell (qs)** - For running the shell
+- **grim** - For screenshots
+- **slurp** - For region selection
+- **wl-copy** - For clipboard operations
 
 ## Development
 
@@ -137,17 +174,21 @@ Shelly uses platform-specific configuration directories:
 ```text
 shelly/
 ├── src/
-│   ├── main.rs           # Entry point
-│   ├── cli.rs            # CLI argument definitions
-│   ├── config.rs         # Configuration handling
-│   └── commands/         # Command implementations
+│   ├── main.rs
+│   ├── cli.rs
+│   ├── config.rs
+│   └── commands/
 │       ├── mod.rs
 │       ├── wallpaper.rs
 │       ├── prefs.rs
 │       ├── list.rs
 │       ├── shell.rs
-│       └── integration.rs
-├── integrations/         # Hyprland integration files
+│       ├── integration.rs
+│       ├── notify.rs
+│       ├── screen.rs
+│       ├── ipc.rs
+│       └── welcome.rs
+├── integrations/
 ├── Cargo.toml
 └── README.md
 ```

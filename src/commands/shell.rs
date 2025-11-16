@@ -6,8 +6,6 @@ use std::process::{Command, Stdio};
 use sysinfo::{Pid, System};
 
 fn run_detached_quickshell() -> Result<u32> {
-    // We run: nohup qs -c shelly-shell >/dev/null 2>&1 & echo $!
-    // This starts the process, detaches it, and prints the new PID.
     let cmd_str = "nohup qs -c shelly-shell >/dev/null 2>&1 & echo $!";
     
     let mut child = Command::new("/bin/sh")
@@ -17,19 +15,16 @@ fn run_detached_quickshell() -> Result<u32> {
         .spawn()
         .context("Failed to run /bin/sh")?;
 
-    // We must wait for the command to finish
     let status = child.wait()?;
     if !status.success() {
         anyhow::bail!("Failed to get PID from detached command");
     }
 
-    // Read the PID from stdout
     let mut stdout_str = String::new();
     if let Some(mut stdout) = child.stdout.take() {
         stdout.read_to_string(&mut stdout_str)?;
     }
 
-    // Parse the PID string to a u32
     let pid = stdout_str
         .trim()
         .parse::<u32>()
@@ -38,9 +33,7 @@ fn run_detached_quickshell() -> Result<u32> {
     Ok(pid)
 }
 
-// `pub` so `main.rs` can call it.
 pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> {
-    // Check for stale lockfile (this logic is still good)
     if paths.lock_file.exists() {
         let content = fs::read_to_string(&paths.lock_file)?;
         let lock: Lockfile = serde_json::from_str(&content)?;
@@ -55,7 +48,6 @@ pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> 
     }
 
     if show_stdout {
-        // --- Run in foreground ---
         println!("Starting shelly shell in foreground...");
         let mut child = Command::new("qs")
             .args(["-c", "shelly-shell"])
@@ -74,11 +66,9 @@ pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> 
         child.wait()?;
         println!("shelly shell exited.");
     } else {
-        // --- Run in background (detached) ---
         println!("Starting shelly shell in background...");
         let pid = run_detached_quickshell()?;
 
-        // Save only the pid to the lockfile
         let lock = Lockfile { pid };
         let lock_content = serde_json::to_string_pretty(&lock)?;
         fs::write(&paths.lock_file, lock_content)?;
@@ -89,7 +79,6 @@ pub fn handle_shell_start(paths: &ConfigPaths, show_stdout: bool) -> Result<()> 
     Ok(())
 }
 
-// `pub` so `main.rs` can call it.
 pub fn handle_shell_stop(paths: &ConfigPaths) -> Result<()> {
     if !paths.lock_file.exists() {
         println!("shelly shell is not running.");
@@ -118,7 +107,6 @@ pub fn handle_shell_stop(paths: &ConfigPaths) -> Result<()> {
     Ok(())
 }
 
-// `pub` so `main.rs` can call it.
 pub fn handle_shell_status(paths: &ConfigPaths) -> Result<()> {
     if !paths.lock_file.exists() {
         println!("shelly shell is NOT running.");
@@ -136,9 +124,6 @@ pub fn handle_shell_status(paths: &ConfigPaths) -> Result<()> {
     }
     Ok(())
 }
-
-// --- Helper Function ---
-// (NOT `pub`, private to this module)
 
 fn is_daemon_running(lock: &Lockfile) -> bool {
     let s = System::new_all();

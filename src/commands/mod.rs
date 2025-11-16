@@ -6,3 +6,4 @@ pub mod notify;
 pub mod integration;
 pub mod ipc;
 pub mod screen;
+pub mod welcome;

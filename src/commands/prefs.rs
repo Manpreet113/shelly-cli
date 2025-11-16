@@ -4,7 +4,6 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 
-// `pub` so `main.rs` can call it.
 pub fn handle_prefs_get(paths: &ConfigPaths, key: &str) -> Result<()> {
     let json_data = read_or_create_prefs(&paths.user_pref_file)?;
     
@@ -25,7 +24,6 @@ pub fn handle_prefs_get(paths: &ConfigPaths, key: &str) -> Result<()> {
     Ok(())
 }
 
-// `pub` so `main.rs` (and `wallpaper.rs`) can call it.
 pub fn handle_prefs_set(paths: &ConfigPaths, key: &str, value_str: &str) -> Result<()> {
     let mut json_data = read_or_create_prefs(&paths.user_pref_file)?;
     let parsed_value = parse_value_str(value_str);
@@ -40,10 +38,6 @@ pub fn handle_prefs_set(paths: &ConfigPaths, key: &str, value_str: &str) -> Resu
     println!("{}", value_str);
     Ok(())
 }
-
-
-// --- Helper Functions ---
-// (These are NOT `pub`, they are private to this module)
 
 fn read_or_create_prefs(path: &Path) -> Result<Value> {
     if !path.exists() {
