@@ -14,6 +14,7 @@ use commands::{
     shell::{handle_shell_start, handle_shell_stop, handle_shell_status},
     wallpaper::handle_wallpaper,
     notify::handle_notify,
+    integration::handle_integration,
 };
 
 fn main() -> Result<()> {
@@ -43,6 +44,9 @@ fn main() -> Result<()> {
         Commands::Notify { title, body } => {
             handle_notify(&title, &body)?;
         },
+        Commands::Integration => {
+            handle_integration(&paths)?;
+        }
     }
 
     Ok(())
