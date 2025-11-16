@@ -1,30 +1,15 @@
 use crate::config::ConfigPaths;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use std::fs;
-use std::process::{Command, Stdio};
-
-const SHELLY_SHELL_REPO: &str = "https://github.com/manpreet113/shelly-shell.git";
 
 pub fn handle_integration(paths: &ConfigPaths) -> Result<()> {
-    let target_qml_path = paths.quickshell_config_dir.join("shelly-shell");
-    if target_qml_path.exists() {
-        println!("shelly-shell already cloned to {:?}", target_qml_path);
-    } else {
-        println!("Cloning shelly-shell into {:?}", target_qml_path);
-        
-        let status = Command::new("git")
-            .arg("clone")
-            .arg(SHELLY_SHELL_REPO)
-            .arg(&target_qml_path)
-            .stdout(Stdio::inherit()) // Show git's output
-            .stderr(Stdio::inherit()) // Show git's errors
-            .status()
-            .context("Failed to run git. Is it installed?")?;
+    let integration_files_dir = paths.shell_qml_dir.join("integrations");
 
-        if !status.success() {
-            bail!("git clone failed. See output above.");
-        }
-        println!("Successfully cloned shelly-shell.");
+    if !integration_files_dir.exists() {
+        anyhow::bail!(
+            "Source directory not found: {:?}\nIs `shelly-shell-git` package installed correctly?",
+            integration_files_dir
+        );
     }
 
     println!(
@@ -32,7 +17,6 @@ pub fn handle_integration(paths: &ConfigPaths) -> Result<()> {
         paths.hypr_config_dir.display()
     );
 
-    let integration_files_dir = target_qml_path.join("integrations");
     let hypr_files = [
         "hypr-execs.conf",
         "hypr-keybinds.conf",

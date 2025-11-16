@@ -9,10 +9,10 @@ pub struct ConfigPaths {
     pub user_wall_dir: PathBuf,
     pub lock_file: PathBuf,
     pub hypr_config_dir: PathBuf,
-    pub quickshell_config_dir: PathBuf,
     pub user_capture_dir: PathBuf,
     pub welcome_lock_file: PathBuf,
     pub welcome_qml_file: PathBuf,
+    pub shell_qml_dir: PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,11 +29,9 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
         .context("Could not find config directory")?
         .join("hypr");
 
-    let quickshell_config_dir = dirs::config_dir()
-        .context("Could not find config directory")?
-        .join("quickshell");
+    let shell_qml_dir = PathBuf::from("/usr/share/quickshell/shelly-shell");
 
-    let welcome_qml_file = quickshell_config_dir.join("shelly-shell/welcome.qml");
+    let welcome_qml_file = shell_qml_dir.join("welcome.qml");
 
     let user_wall_dir = dirs::picture_dir()
         .context("Could not find picture directory")?
@@ -53,8 +51,6 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
         .context(format!("Failed to create config dir at {:?}", config_dir))?;
     fs::create_dir_all(&hypr_config_dir)
         .context(format!("Failed to create hypr config dir at {:?}", hypr_config_dir))?;
-    fs::create_dir_all(&quickshell_config_dir)
-        .context(format!("Failed to create quickshell config dir at {:?}", quickshell_config_dir))?;
     fs::create_dir_all(&user_wall_dir)
         .context(format!("Failed to create wallpaper dir at {:?}", user_wall_dir))?;
     fs::create_dir_all(&user_capture_dir)
@@ -67,9 +63,9 @@ pub fn get_config_paths() -> Result<ConfigPaths> {
         lock_file: runtime_dir.join("shelly.lck"),
         user_wall_dir,
         hypr_config_dir,
-        quickshell_config_dir,
         user_capture_dir,
         welcome_lock_file,
         welcome_qml_file,
+        shell_qml_dir,
     })
 }
