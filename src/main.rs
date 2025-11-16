@@ -13,6 +13,7 @@ use commands::{
     prefs::{handle_prefs_get, handle_prefs_set},
     shell::{handle_shell_start, handle_shell_stop, handle_shell_status},
     wallpaper::handle_wallpaper,
+    notify::handle_notify,
 };
 
 fn main() -> Result<()> {
@@ -38,6 +39,9 @@ fn main() -> Result<()> {
             ShellAction::Start { stdout } => handle_shell_start(&paths, stdout)?,
             ShellAction::Stop => handle_shell_stop(&paths)?,
             ShellAction::Status => handle_shell_status(&paths)?,
+        },
+        Commands::Notify { title, body } => {
+            handle_notify(&title, &body)?;
         },
     }
 

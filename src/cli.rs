@@ -37,6 +37,14 @@ pub enum Commands {
         #[command(subcommand)]
         action: ShellAction,
     },
+    
+    /// Send a desktop notification (replaces NotifyCommand.hx)
+    Notify {
+        /// The notification title
+        title: String,
+        /// The notification body
+        body: String,
+    },
 }
 
 #[derive(Subcommand, Debug)]
