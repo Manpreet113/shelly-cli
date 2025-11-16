@@ -15,6 +15,7 @@ use commands::{
     wallpaper::handle_wallpaper,
     notify::handle_notify,
     integration::handle_integration,
+    ipc::handle_ipc,
 };
 
 fn main() -> Result<()> {
@@ -46,6 +47,9 @@ fn main() -> Result<()> {
         },
         Commands::Integration => {
             handle_integration(&paths)?;
+        },
+        Commands::Ipc { args } => {
+            handle_ipc(&args)?;
         }
     }
 

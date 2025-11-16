@@ -45,8 +45,17 @@ pub enum Commands {
         /// The notification body
         body: String,
     },
+    
     /// Integrate shelly with Hyprland
     Integration,
+
+    /// Send an IPC message to the running shelly-shell
+    #[command(allow_external_subcommands = true, trailing_var_arg = true)]
+    Ipc {
+        /// The IPC arguments to send (e.g., window toggle-float)
+        #[arg(required = true, num_args = 1..)]
+        args: Vec<String>,
+    },
 }
 
 #[derive(Subcommand, Debug)]
